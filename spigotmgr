@@ -1,0 +1,220 @@
+#!/bin/bash
+
+## =================== Spigot Manager =============================
+## == This script provide a simple method for spigot.jar and     ==
+## == plugins management. Help: ./spigotmgr -h                   ==
+## == Author: slenky                                             ==
+## == Contacts:                                                  ==
+## ===  Skype: slenky2                                           ==
+## ===  Email: astapov_b@mail.ua                                 ==
+## ===  SpigotMC: https://www.spigotmc.org/threads/.218467/      ==
+## ===  RuBukkit: http://rubukkit.org/threads/.132446/           ==
+## == Be respectful! Dont share this without link to             ==
+## === source or my approval.                                    ==
+## == Please, install curl before using this script.             ==
+## == Good Luck!                                                 ==
+##=================================================================
+
+## SETTINGS:
+spigotmcLogin="slenky"
+spigotmcPass="123"
+
+
+
+
+
+
+##DONT TOUCH ANYTHING BELOW THIS LINE!!!!!!
+mgrVersion="1.0"
+ESC_SEQ="\x1b["
+COL_RESET=$ESC_SEQ"39;49;00m"
+COL_RED=$ESC_SEQ"31;01m"
+COL_GREEN=$ESC_SEQ"32;01m"
+COL_YELLOW=$ESC_SEQ"33;01m"
+COL_BLUE=$ESC_SEQ"34;01m"
+COL_MAGENTA=$ESC_SEQ"35;01m"
+COL_CYAN=$ESC_SEQ"36;01m"
+
+doSpigotInstall(){
+    doDl=0
+	case "$1" in	
+		latest) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}latest Spigot${COL_RESET}..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-latest.jar"
+		doDl=1
+    ;;
+		1.11.2) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.11.2-R0.1-SNAPSHOT.jar"
+		doDl=1		
+    ;;
+		1.9.4) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.9.4-R0.1-SNAPSHOT.jar"
+		doDl=1
+    ;;
+		1.9) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.9-R0.1-SNAPSHOT.jar"
+		doDl=1
+    ;;		
+		1.8.8) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.8.8-R0.1-SNAPSHOT.jar"
+		doDl=1
+    ;;
+		1.8) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.8-R0.1-SNAPSHOT.jar"
+		doDl=1		
+    ;;
+		1.6.4) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.6.4-R2.1-SNAPSHOT.jar"
+		doDl=1
+	;;
+		1.5.2) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download ${COL_YELLOW}Spigot $1${COL_RESET} ..."
+		dlLink="http://yivesmirror.com/files/spigot/spigot-1.5.2-R1.1-SNAPSHOT.jar"
+		doDl=1
+	;;		
+		"") echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Available versions to download:"
+		echo -e "${COL_RED}latest            ${COL_CYAN}1.8.8${COL_RESET}"
+		echo -e "${COL_CYAN}1.11.2            ${COL_CYAN}1.8${COL_RESET}"
+		echo -e "${COL_CYAN}1.9.4             ${COL_CYAN}1.6.4${COL_RESET}"
+		echo -e "${COL_CYAN}1.9               ${COL_CYAN}1.5.2${COL_RESET}"
+    ;;
+		*) echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Unknown version. Please, use one from below:"
+		echo -e "${COL_RED}latest            ${COL_CYAN}1.8.8${COL_RESET}"
+		echo -e "${COL_CYAN}1.11.2            ${COL_CYAN}1.8${COL_RESET}"
+		echo -e "${COL_CYAN}1.9.4             ${COL_CYAN}1.6.4${COL_RESET}"
+		echo -e "${COL_CYAN}1.9               ${COL_CYAN}1.5.2${COL_RESET}"
+    ;;	
+	esac
+	if [ ! -z "$dlLink" ]; then 
+	 curl -O -J -L "${dlLink}"
+     fileName=`echo "${dlLink}" | sed 's:.*/::'`
+     echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Loading of Spigot is finished!"	 
+	fi	
+    if [ ! -f "spigot.jar" ]; then
+	 mv -f ${fileName} spigot.jar
+	else
+     mv -f spigot.jar spigot-old.jar
+     mv -f ${fileName} spigot.jar
+    fi	 
+}
+doPluginInstall(){
+	case "$1" in	
+		fromList)
+		curl -c ./spigotcookie --data "login=${spigotmcLogin}&password=${spigotmcPass}" https://www.spigotmc.org/login/login
+	    command -v python3 >/dev/null 2>&1 || { echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] I require python3 but it's not installed.  Aborting." >&2; exit 1; }
+        mkdir tempDir && cd tempDir		
+		echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing to download plugins from list..."
+		while read -r line; do		
+			plLink=$(curl -s -b ../spigotcookie "$line" | grep -o '<a .*href="resources/.*/download.*">' | sed -e 's/<a /\n<a /g' | sed -e 's/<a .*href=['"'"'"]//' -e 's/["'"'"'].*$//' -e '/^$/ d')			
+			fullLink="https://www.spigotmc.org/${plLink}"
+			echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing the download of ${COL_YELLOW}$line${COL_RESET}"
+			python ../downloader.py ${fullLink} ${spigotmcLogin} ${spigotmcPass}
+			mv -f * ../plugins/			
+		done < "../pluglist.txt"
+		rm -rf ../tempDir
+	;;	
+		"") echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] SpigotMC Plugin Downloader. Usage:"		
+		echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] ./spigotmgr plugin <link>        Download/Update Plugins"
+		echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] ./spigotmgr plugin fromList      Download/Update all plugins, which links mentioned in pluglist.txt"
+    ;;
+		*)		
+		command -v python >/dev/null 2>&1 || { echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] I require python3 but it's not installed.  Aborting." >&2; exit 1; }        		
+		if  [[ "$1" == https://spigotmc.org/resources/* ]] || [[ "$1" == https://www.spigotmc.org/resources/* ]]; then
+		    curl -c ./spigotcookie --data "login=${spigotmcLogin}&password=${spigotmcPass}" https://www.spigotmc.org/login/login
+            mkdir tempDir && cd tempDir		
+			plLink=$(curl -s -b ../spigotcookie "$1" | grep -o '<a .*href="resources/.*/download.*">' | sed -e 's/<a /\n<a /g' | sed -e 's/<a .*href=['"'"'"]//' -e 's/["'"'"'].*$//' -e '/^$/ d')			
+			fullLink="https://www.spigotmc.org/${plLink}"
+			echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] Preparing the download of $1"
+			python ../downloader.py "${fullLink}" ${spigotmcLogin} ${spigotmcPass}
+			mv -f * ../plugins/ 
+            rm -rf ../tempDir	
+        else 
+         echo -e "[${COL_YELLOW}Spigot${COL_GREEN}MGR${COL_RESET}] ${COL_RED}Wrong Plugin Link!${COL_RESET}"		
+		fi
+    ;;		
+	esac	
+}
+showUsage() {
+  echo -e "${COL_MAGENTA}Usage${COL_RESET}: ./${COL_GREEN}spigotmgr ${COL_YELLOW}[option] ${COL_RED}<command>${COL_RESET}\n"
+  echo -e "${COL_YELLOW}Commands${COL_RESET}:"
+  echo -e "${COL_RED}spigot                ${COL_CYAN}Spigot Command Description${COL_RESET}"
+  echo -e "${COL_RED}spigot latest         ${COL_CYAN}Install and upload latest build of Spigot${COL_RESET}"
+  echo -e "${COL_RED}spigot <version>      ${COL_CYAN}Install defined version on Spigot.${COL_RESET}"
+  echo -e "${COL_RED}plugin                ${COL_CYAN}Plugin Command Description.${COL_RESET}"
+  echo -e "${COL_RED}plugin <link>         ${COL_CYAN}Installs a plugin from the Spigotmc.${COL_RESET}"
+  echo -e "${COL_RED}plugin fromList       ${COL_CYAN}Install all plugins, mentioned in pluglist.txt.${COL_RESET}"   
+  echo -e "${COL_YELLOW}Option${COL_RESET}:"
+  echo -e "${COL_RED}--no-output           ${COL_CYAN}Disables all output. (NOT IMPLEMENTED YET)${COL_RESET}"
+  echo -e "${COL_YELLOW}Other:"
+  echo -e "${COL_RED}--version             ${COL_CYAN}Show version of this script.${COL_RESET}"
+  echo -e "${COL_RED}--help                ${COL_CYAN}Show this page.${COL_RESET}"
+}
+main(){
+  while true; do
+    options=( )
+    args=( )
+    command="$1"
+    shift
+    nrarg=0
+    case "$command" in
+      spigot) nrarg=1; ;;
+      plugin) nrarg=1; ;;
+    esac
+    while [ $# -ne 0 ]; do
+      case "$1" in
+        --)
+          shift
+          break
+        ;;
+        --args)
+          nrarg=$#
+        ;;
+        --*)
+          options+=( "$1" )
+        ;;
+        *)
+          if [ $nrarg -gt 0 ]; then
+            args+=( "$1" )
+            (( nrarg-- ))
+          else
+            break
+          fi
+        ;;
+      esac
+      shift
+    done
+    case "$command" in
+      spigot)
+        doSpigotInstall "${args[@]}"
+        exit
+      ;;
+      plugin)
+        doPluginInstall "${args[@]}"
+        exit
+      ;;
+      --version)
+        echo -e "${COL_YELLOW}SpigotMGR by ${COL_GREEN}slenky.${COL_RESET}"
+		echo -e "${COL_YELLOW}Version${COL_RESET}: ${COL_RED}${mgrVersion}${COL_RESET}"
+		echo -e "${COL_YELLOW}Skype${COL_RESET}: ${COL_BLUE}slenky2${COL_RESET}"
+        exit 1
+      ;;
+      -h|--help)
+        showUsage
+        exit 1
+      ;;
+      "")
+        echo -e "${COL_YELLOW}SpigotMGR ${COL_RED}v${mgrVersion}${COL_RESET}: no command specified"
+        showUsage
+        exit 1
+      ;;
+    esac
+    laststatus=$?
+    if [ $laststatus -eq 255 ]; then
+      exit 1
+    elif [ $laststatus -ne 0 ]; then
+      status=$laststatus
+    fi
+    done
+  exit $status
+}
+if [[ "$(caller)" =~ ^0 ]]; then
+  main "$@"
+fi
